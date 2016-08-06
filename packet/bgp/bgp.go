@@ -33,6 +33,7 @@ const (
 	AFI_IP6    = 2
 	AFI_L2VPN  = 25
 	AFI_OPAQUE = 16397
+	AFI_LS     = 16388
 )
 
 const (
@@ -48,6 +49,8 @@ const (
 	SAFI_FLOW_SPEC_UNICAST        = 133
 	SAFI_FLOW_SPEC_VPN            = 134
 	SAFI_KEY_VALUE                = 241
+	SAFI_LS                       = 71
+	SAFI_LS_VPN                   = 128
 )
 
 const (
