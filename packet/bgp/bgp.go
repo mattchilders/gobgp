@@ -29,11 +29,11 @@ import (
 )
 
 const (
-	AFI_IP     = 1
-	AFI_IP6    = 2
-	AFI_L2VPN  = 25
-	AFI_OPAQUE = 16397
-	AFI_LS     = 16388
+	AFI_IP        = 1
+	AFI_IP6       = 2
+	AFI_L2VPN     = 25
+	AFI_OPAQUE    = 16397
+	AFI_LINKSTATE = 16388
 )
 
 const (
@@ -49,8 +49,8 @@ const (
 	SAFI_FLOW_SPEC_UNICAST        = 133
 	SAFI_FLOW_SPEC_VPN            = 134
 	SAFI_KEY_VALUE                = 241
-	SAFI_LS                       = 71
-	SAFI_LS_VPN                   = 128
+	SAFI_LINKSTATE                = 71
+	SAFI_LINKSTATE_VPN            = 128
 )
 
 const (
@@ -3427,75 +3427,78 @@ func (f RouteFamily) String() string {
 }
 
 const (
-	RF_IPv4_UC     RouteFamily = AFI_IP<<16 | SAFI_UNICAST
-	RF_IPv6_UC     RouteFamily = AFI_IP6<<16 | SAFI_UNICAST
-	RF_IPv4_MC     RouteFamily = AFI_IP<<16 | SAFI_MULTICAST
-	RF_IPv6_MC     RouteFamily = AFI_IP6<<16 | SAFI_MULTICAST
-	RF_IPv4_VPN    RouteFamily = AFI_IP<<16 | SAFI_MPLS_VPN
-	RF_IPv6_VPN    RouteFamily = AFI_IP6<<16 | SAFI_MPLS_VPN
-	RF_IPv4_VPN_MC RouteFamily = AFI_IP<<16 | SAFI_MPLS_VPN_MULTICAST
-	RF_IPv6_VPN_MC RouteFamily = AFI_IP6<<16 | SAFI_MPLS_VPN_MULTICAST
-	RF_IPv4_MPLS   RouteFamily = AFI_IP<<16 | SAFI_MPLS_LABEL
-	RF_IPv6_MPLS   RouteFamily = AFI_IP6<<16 | SAFI_MPLS_LABEL
-	RF_VPLS        RouteFamily = AFI_L2VPN<<16 | SAFI_VPLS
-	RF_EVPN        RouteFamily = AFI_L2VPN<<16 | SAFI_EVPN
-	RF_RTC_UC      RouteFamily = AFI_IP<<16 | SAFI_ROUTE_TARGET_CONSTRTAINS
-	RF_IPv4_ENCAP  RouteFamily = AFI_IP<<16 | SAFI_ENCAPSULATION
-	RF_IPv6_ENCAP  RouteFamily = AFI_IP6<<16 | SAFI_ENCAPSULATION
-	RF_FS_IPv4_UC  RouteFamily = AFI_IP<<16 | SAFI_FLOW_SPEC_UNICAST
-	RF_FS_IPv4_VPN RouteFamily = AFI_IP<<16 | SAFI_FLOW_SPEC_VPN
-	RF_FS_IPv6_UC  RouteFamily = AFI_IP6<<16 | SAFI_FLOW_SPEC_UNICAST
-	RF_FS_IPv6_VPN RouteFamily = AFI_IP6<<16 | SAFI_FLOW_SPEC_VPN
-	RF_FS_L2_VPN   RouteFamily = AFI_L2VPN<<16 | SAFI_FLOW_SPEC_VPN
-	RF_OPAQUE      RouteFamily = AFI_OPAQUE<<16 | SAFI_KEY_VALUE
+	RF_IPv4_UC        RouteFamily = AFI_IP<<16 | SAFI_UNICAST
+	RF_IPv6_UC        RouteFamily = AFI_IP6<<16 | SAFI_UNICAST
+	RF_IPv4_MC        RouteFamily = AFI_IP<<16 | SAFI_MULTICAST
+	RF_IPv6_MC        RouteFamily = AFI_IP6<<16 | SAFI_MULTICAST
+	RF_IPv4_VPN       RouteFamily = AFI_IP<<16 | SAFI_MPLS_VPN
+	RF_IPv6_VPN       RouteFamily = AFI_IP6<<16 | SAFI_MPLS_VPN
+	RF_IPv4_VPN_MC    RouteFamily = AFI_IP<<16 | SAFI_MPLS_VPN_MULTICAST
+	RF_IPv6_VPN_MC    RouteFamily = AFI_IP6<<16 | SAFI_MPLS_VPN_MULTICAST
+	RF_IPv4_MPLS      RouteFamily = AFI_IP<<16 | SAFI_MPLS_LABEL
+	RF_IPv6_MPLS      RouteFamily = AFI_IP6<<16 | SAFI_MPLS_LABEL
+	RF_VPLS           RouteFamily = AFI_L2VPN<<16 | SAFI_VPLS
+	RF_EVPN           RouteFamily = AFI_L2VPN<<16 | SAFI_EVPN
+	RF_RTC_UC         RouteFamily = AFI_IP<<16 | SAFI_ROUTE_TARGET_CONSTRTAINS
+	RF_IPv4_ENCAP     RouteFamily = AFI_IP<<16 | SAFI_ENCAPSULATION
+	RF_IPv6_ENCAP     RouteFamily = AFI_IP6<<16 | SAFI_ENCAPSULATION
+	RF_FS_IPv4_UC     RouteFamily = AFI_IP<<16 | SAFI_FLOW_SPEC_UNICAST
+	RF_FS_IPv4_VPN    RouteFamily = AFI_IP<<16 | SAFI_FLOW_SPEC_VPN
+	RF_FS_IPv6_UC     RouteFamily = AFI_IP6<<16 | SAFI_FLOW_SPEC_UNICAST
+	RF_FS_IPv6_VPN    RouteFamily = AFI_IP6<<16 | SAFI_FLOW_SPEC_VPN
+	RF_FS_L2_VPN      RouteFamily = AFI_L2VPN<<16 | SAFI_FLOW_SPEC_VPN
+	RF_OPAQUE         RouteFamily = AFI_OPAQUE<<16 | SAFI_KEY_VALUE
+	RF_LINKSTATE      RouteFamily = AFI_LINKSTATE<<16 | SAFI_LINKSTATE
 )
 
 var AddressFamilyNameMap = map[RouteFamily]string{
-	RF_IPv4_UC:     "ipv4-unicast",
-	RF_IPv6_UC:     "ipv6-unicast",
-	RF_IPv4_MC:     "ipv4-multicast",
-	RF_IPv6_MC:     "ipv6-multicast",
-	RF_IPv4_MPLS:   "ipv4-labelled-unicast",
-	RF_IPv6_MPLS:   "ipv6-labelled-unicast",
-	RF_IPv4_VPN:    "l3vpn-ipv4-unicast",
-	RF_IPv6_VPN:    "l3vpn-ipv6-unicast",
-	RF_IPv4_VPN_MC: "l3vpn-ipv4-multicast",
-	RF_IPv6_VPN_MC: "l3vpn-ipv6-multicast",
-	RF_VPLS:        "l2vpn-vpls",
-	RF_EVPN:        "l2vpn-evpn",
-	RF_RTC_UC:      "rtc",
-	RF_IPv4_ENCAP:  "ipv4-encap",
-	RF_IPv6_ENCAP:  "ipv6-encap",
-	RF_FS_IPv4_UC:  "ipv4-flowspec",
-	RF_FS_IPv4_VPN: "l3vpn-ipv4-flowspec",
-	RF_FS_IPv6_UC:  "ipv6-flowspec",
-	RF_FS_IPv6_VPN: "l3vpn-ipv6-flowspec",
-	RF_FS_L2_VPN:   "l2vpn-flowspec",
-	RF_OPAQUE:      "opaque",
+	RF_IPv4_UC:       "ipv4-unicast",
+	RF_IPv6_UC:       "ipv6-unicast",
+	RF_IPv4_MC:       "ipv4-multicast",
+	RF_IPv6_MC:       "ipv6-multicast",
+	RF_IPv4_MPLS:     "ipv4-labelled-unicast",
+	RF_IPv6_MPLS:     "ipv6-labelled-unicast",
+	RF_IPv4_VPN:      "l3vpn-ipv4-unicast",
+	RF_IPv6_VPN:      "l3vpn-ipv6-unicast",
+	RF_IPv4_VPN_MC:   "l3vpn-ipv4-multicast",
+	RF_IPv6_VPN_MC:   "l3vpn-ipv6-multicast",
+	RF_VPLS:          "l2vpn-vpls",
+	RF_EVPN:          "l2vpn-evpn",
+	RF_RTC_UC:        "rtc",
+	RF_IPv4_ENCAP:    "ipv4-encap",
+	RF_IPv6_ENCAP:    "ipv6-encap",
+	RF_FS_IPv4_UC:    "ipv4-flowspec",
+	RF_FS_IPv4_VPN:   "l3vpn-ipv4-flowspec",
+	RF_FS_IPv6_UC:    "ipv6-flowspec",
+	RF_FS_IPv6_VPN:   "l3vpn-ipv6-flowspec",
+	RF_FS_L2_VPN:     "l2vpn-flowspec",
+	RF_OPAQUE:        "opaque",
+	RF_LINKSTATE:	  "link-state",
 }
 
 var AddressFamilyValueMap = map[string]RouteFamily{
-	AddressFamilyNameMap[RF_IPv4_UC]:     RF_IPv4_UC,
-	AddressFamilyNameMap[RF_IPv6_UC]:     RF_IPv6_UC,
-	AddressFamilyNameMap[RF_IPv4_MC]:     RF_IPv4_MC,
-	AddressFamilyNameMap[RF_IPv6_MC]:     RF_IPv6_MC,
-	AddressFamilyNameMap[RF_IPv4_MPLS]:   RF_IPv4_MPLS,
-	AddressFamilyNameMap[RF_IPv6_MPLS]:   RF_IPv6_MPLS,
-	AddressFamilyNameMap[RF_IPv4_VPN]:    RF_IPv4_VPN,
-	AddressFamilyNameMap[RF_IPv6_VPN]:    RF_IPv6_VPN,
-	AddressFamilyNameMap[RF_IPv4_VPN_MC]: RF_IPv4_VPN_MC,
-	AddressFamilyNameMap[RF_IPv6_VPN_MC]: RF_IPv6_VPN_MC,
-	AddressFamilyNameMap[RF_VPLS]:        RF_VPLS,
-	AddressFamilyNameMap[RF_EVPN]:        RF_EVPN,
-	AddressFamilyNameMap[RF_RTC_UC]:      RF_RTC_UC,
-	AddressFamilyNameMap[RF_IPv4_ENCAP]:  RF_IPv4_ENCAP,
-	AddressFamilyNameMap[RF_IPv6_ENCAP]:  RF_IPv6_ENCAP,
-	AddressFamilyNameMap[RF_FS_IPv4_UC]:  RF_FS_IPv4_UC,
-	AddressFamilyNameMap[RF_FS_IPv4_VPN]: RF_FS_IPv4_VPN,
-	AddressFamilyNameMap[RF_FS_IPv6_UC]:  RF_FS_IPv6_UC,
-	AddressFamilyNameMap[RF_FS_IPv6_VPN]: RF_FS_IPv6_VPN,
-	AddressFamilyNameMap[RF_FS_L2_VPN]:   RF_FS_L2_VPN,
-	AddressFamilyNameMap[RF_OPAQUE]:      RF_OPAQUE,
+	AddressFamilyNameMap[RF_IPv4_UC]:       RF_IPv4_UC,
+	AddressFamilyNameMap[RF_IPv6_UC]:       RF_IPv6_UC,
+	AddressFamilyNameMap[RF_IPv4_MC]:       RF_IPv4_MC,
+	AddressFamilyNameMap[RF_IPv6_MC]:       RF_IPv6_MC,
+	AddressFamilyNameMap[RF_IPv4_MPLS]:     RF_IPv4_MPLS,
+	AddressFamilyNameMap[RF_IPv6_MPLS]:     RF_IPv6_MPLS,
+	AddressFamilyNameMap[RF_IPv4_VPN]:      RF_IPv4_VPN,
+	AddressFamilyNameMap[RF_IPv6_VPN]:      RF_IPv6_VPN,
+	AddressFamilyNameMap[RF_IPv4_VPN_MC]:   RF_IPv4_VPN_MC,
+	AddressFamilyNameMap[RF_IPv6_VPN_MC]:   RF_IPv6_VPN_MC,
+	AddressFamilyNameMap[RF_VPLS]:          RF_VPLS,
+	AddressFamilyNameMap[RF_EVPN]:          RF_EVPN,
+	AddressFamilyNameMap[RF_RTC_UC]:        RF_RTC_UC,
+	AddressFamilyNameMap[RF_IPv4_ENCAP]:    RF_IPv4_ENCAP,
+	AddressFamilyNameMap[RF_IPv6_ENCAP]:    RF_IPv6_ENCAP,
+	AddressFamilyNameMap[RF_FS_IPv4_UC]:    RF_FS_IPv4_UC,
+	AddressFamilyNameMap[RF_FS_IPv4_VPN]:   RF_FS_IPv4_VPN,
+	AddressFamilyNameMap[RF_FS_IPv6_UC]:    RF_FS_IPv6_UC,
+	AddressFamilyNameMap[RF_FS_IPv6_VPN]:   RF_FS_IPv6_VPN,
+	AddressFamilyNameMap[RF_FS_L2_VPN]:     RF_FS_L2_VPN,
+	AddressFamilyNameMap[RF_OPAQUE]:        RF_OPAQUE,
+	AddressFamilyNameMap[RF_LINKSTATE]:     RF_LINKSTATE,
 }
 
 func GetRouteFamily(name string) (RouteFamily, error) {
@@ -3539,6 +3542,8 @@ func NewPrefixFromRouteFamily(afi uint16, safi uint8) (prefix AddrPrefixInterfac
 		prefix = &FlowSpecL2VPN{FlowSpecNLRI{rf: RF_FS_L2_VPN}}
 	case RF_OPAQUE:
 		prefix = &OpaqueNLRI{}
+	case RF_LINKSTATE:
+		prefix = NewLinkStateNLRI()
 	default:
 		return nil, fmt.Errorf("unknown route family. AFI: %d, SAFI: %d", afi, safi)
 	}
@@ -3601,6 +3606,7 @@ const (
 	_
 	_
 	BGP_ATTR_TYPE_AIGP                     // = 26
+	BGP_ATTR_TYPE_LINKSTATE BGPAttrType = 29
 	BGP_ATTR_TYPE_OPAQUE_VALUE BGPAttrType = 41
 )
 
@@ -3788,6 +3794,7 @@ var PathAttrFlags map[BGPAttrType]BGPAttrFlag = map[BGPAttrType]BGPAttrFlag{
 	BGP_ATTR_TYPE_TUNNEL_ENCAP:         BGP_ATTR_FLAG_TRANSITIVE | BGP_ATTR_FLAG_OPTIONAL,
 	BGP_ATTR_TYPE_AIGP:                 BGP_ATTR_FLAG_OPTIONAL,
 	BGP_ATTR_TYPE_OPAQUE_VALUE:         BGP_ATTR_FLAG_TRANSITIVE | BGP_ATTR_FLAG_OPTIONAL,
+	BGP_ATTR_TYPE_LINKSTATE:            BGP_ATTR_FLAG_OPTIONAL,
 }
 
 type PathAttributeInterface interface {
@@ -4838,6 +4845,7 @@ func (p *PathAttributeMpReachNLRI) DecodeFromBytes(data []byte) error {
 			return err
 		}
 		if prefix.Len() > len(value) {
+			return nil
 			return NewMessageError(eCode, eSubCode, value, "prefix length is incorrect")
 		}
 		value = value[prefix.Len():]
@@ -4974,6 +4982,7 @@ func (p *PathAttributeMpUnreachNLRI) DecodeFromBytes(data []byte) error {
 			return err
 		}
 		if prefix.Len() > len(value) {
+			return nil
 			return NewMessageError(eCode, eSubCode, data[:p.PathAttribute.Len()], "prefix length is incorrect")
 		}
 		value = value[prefix.Len():]
@@ -6676,6 +6685,292 @@ func NewPathAttributeOpaqueValue(value []byte) *PathAttributeOpaqueValue {
 	}
 }
 
+
+type PathAttributeLinkState struct {
+    PathAttribute
+    Value []*LinkStateTLV
+}
+
+func (p *PathAttributeLinkState) DecodeFromBytes(data []byte) error {
+        err := p.PathAttribute.DecodeFromBytes(data)
+        if err != nil {
+                return err
+        }
+        curr := 0
+        for {
+                if len(p.PathAttribute.Value) < curr+4 {
+                        break
+                }
+                t := binary.BigEndian.Uint16(p.PathAttribute.Value[curr : curr+2])
+                LinkStateType := LinkStateAttrType(t)
+                l := binary.BigEndian.Uint16(p.PathAttribute.Value[curr+2 : curr+4])
+                if len(p.PathAttribute.Value) < curr+4+int(l) {
+                        return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, fmt.Sprintf("Not all LinkStateTLV bytes available. %d < %d", len(p.PathAttribute.Value), curr+4+int(l)))
+                }
+                v := p.PathAttribute.Value[curr+4 : curr+4+int(l)]
+                tlv := &LinkStateTLV{
+                        Type: LinkStateType,
+                        Length:  l,
+                }
+                err = tlv.DecodeFromBytes(v)
+                if err != nil {
+                        return err
+                }
+                p.Value = append(p.Value, tlv)
+                curr += 4 + int(l)
+        }
+        return nil
+}
+
+type LinkStateAttrType uint16
+
+type LinkStateTLV struct {
+    Type   LinkStateAttrType
+    Length uint16
+    Value LinkStateTLVValue
+}
+
+type LinkStateTLVValue interface {
+	Serialize() ([]byte, error)
+}
+
+const(
+    LS_TLV_TYPE_MULTI_TOPO_ID    LinkStateAttrType = 263
+    LS_TLV_TYPE_NODE_FLAG_BITS   LinkStateAttrType = 1024
+    LS_TLV_TYPE_OPAQUE_NODE_PROP LinkStateAttrType = 1025
+    LS_TLV_TYPE_NODE_NAME        LinkStateAttrType = 1026
+    LS_TLV_TYPE_ISIS_AREA_ID     LinkStateAttrType = 1027
+    LS_TLV_TYPE_IPV4_RID_LOCAL   LinkStateAttrType = 1028
+    LS_TLV_TYPE_IPV6_RID_LOCAL   LinkStateAttrType = 1029
+    LS_TLV_TYPE_IPV4_RID_REMOTE  LinkStateAttrType = 1030
+    LS_TLV_TYPE_IPV6_RID_REMOTE  LinkStateAttrType = 1031
+    LS_TLV_TYPE_COLOR            LinkStateAttrType = 1088
+    LS_TLV_TYPE_MAX_LINK_BW      LinkStateAttrType = 1089
+    LS_TLV_TYPE_MAX_RES_BW       LinkStateAttrType = 1090
+    LS_TLV_TYPE_UNRES_BW         LinkStateAttrType = 1091
+    LS_TLV_TYPE_TE_DEF_METRIC    LinkStateAttrType = 1092
+    LS_TLV_TYPE_LINK_PROT_TYPE   LinkStateAttrType = 1093
+    LS_TLV_TYPE_MPLS_PROT_MASK   LinkStateAttrType = 1094
+    LS_TLV_TYPE_METRIC           LinkStateAttrType = 1095
+    LS_TLV_TYPE_SRLG             LinkStateAttrType = 1096
+    LS_TLV_TYPE_OPAQUE_LINK_ATTR LinkStateAttrType = 1097
+    LS_TLV_TYPE_LINK_NAME_ATTR   LinkStateAttrType = 1098
+    LS_TLV_TYPE_IGP_FLAGS        LinkStateAttrType = 1152
+    LS_TLV_TYPE_ROUTE_TAG        LinkStateAttrType = 1153
+    LS_TLV_TYPE_EXT_TAG          LinkStateAttrType = 1154
+    LS_TLV_TYPE_PREFIX_METRIC    LinkStateAttrType = 1155
+    LS_TLV_TYPE_OSPF_FW_ADDR     LinkStateAttrType = 1156
+    LS_TLV_TYPE_OPAQUE_PFX_ATTR  LinkStateAttrType = 1157
+)
+
+
+type LinkStateNodeFlag struct {
+    overload bool
+    attached bool
+    external bool
+    abr bool
+}
+
+type LinkStateNodeFlagMap uint16
+
+const (
+    LS_NODE_ATTR_FLAG_OVERLOAD  LinkStateNodeFlagMap = 1 << 15
+    LS_NODE_ATTR_FLAG_ATTACHED  LinkStateNodeFlagMap = 1 << 14
+    LS_NODE_ATTR_FLAG_EXTERNAL  LinkStateNodeFlagMap = 1 << 13
+    LS_NODE_ATTR_FLAG_ABR       LinkStateNodeFlagMap = 1 << 12
+)
+
+func (l *LinkStateNodeFlag) Serialize() ([]byte, error) {
+    buf := make([]byte, 5)
+    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_NODE_FLAG_BITS))
+    binary.BigEndian.PutUint16(buf[2:], 1)
+    var flags LinkStateNodeFlagMap = 0
+    if l.overload {
+     flags += LS_NODE_ATTR_FLAG_OVERLOAD
+    }
+    if l.attached {
+     flags += LS_NODE_ATTR_FLAG_ATTACHED
+    }
+    if l.external {
+     flags += LS_NODE_ATTR_FLAG_EXTERNAL
+    }
+    if l.abr {
+     flags += LS_NODE_ATTR_FLAG_ABR
+    }
+    binary.BigEndian.PutUint16(buf[4:], uint16(flags))
+    return buf, nil
+}
+
+type LinkStateRIDv4Remote struct {
+    rid uint32
+}
+
+func (l *LinkStateRIDv4Remote) Serialize() ([]byte, error) {
+    buf := make([]byte, 5)
+    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_IPV4_RID_REMOTE))
+    binary.BigEndian.PutUint16(buf[2:], 4)
+    binary.BigEndian.PutUint32(buf[4:], l.rid)
+    return buf, nil
+}
+
+type LinkStateRIDv4Local struct {
+    rid uint32
+}
+
+func (l *LinkStateRIDv4Local) Serialize() ([]byte, error) {
+    buf := make([]byte, 5)
+    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_IPV4_RID_LOCAL))
+    binary.BigEndian.PutUint16(buf[2:], 4)
+    binary.BigEndian.PutUint32(buf[4:], l.rid)
+    return buf, nil
+}
+
+type LinkStateMetric struct {
+    metric uint32
+}
+
+func (l *LinkStateMetric) Serialize() ([]byte, error) {
+    buf := make([]byte, 5)
+    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_METRIC))
+    if l.metric < 65536 {
+    	binary.BigEndian.PutUint16(buf[2:], 2)    	
+	    binary.BigEndian.PutUint16(buf[4:], uint16(l.metric))
+    	return buf, nil
+    } else {
+    	binary.BigEndian.PutUint16(buf[2:], 3) 	
+    	//Needs some work
+	    binary.BigEndian.PutUint32(buf[4:], l.metric << 8)
+        return buf[:7], nil
+    }
+}
+
+type LinkStateISISAreaID struct {
+    areaID []byte
+}
+
+func (l *LinkStateISISAreaID) Serialize() ([]byte, error) {
+	buf := make([]byte, 1)
+	return buf, nil
+}
+
+
+func (l *LinkStateTLV)AFI()uint16 {
+	return AFI_LINKSTATE
+}
+
+func (l *LinkStateTLV) SAFI()uint8 {
+	return SAFI_LINKSTATE
+}
+
+func (l *LinkStateTLV) Flat()map[string]string {
+	return map[string]string{}
+}
+
+func (l *LinkStateTLV) Len()int{
+	return int(l.Length+4)
+}
+
+func (l *LinkStateTLV) String()string {
+	return ("In Linkstate String Function")
+
+}
+
+
+func (l *PathAttributeLinkState) MarshalJSON()([]byte,error){
+	//return json.Marshal(struct {
+	//	Code  string `json:"code"`
+	//	Value RouteFamily       `json:"value"`
+	//}{
+	//	Code:  "hi",
+	//	Value: l.CapValue,
+	//})
+
+	buf := make([]byte,1)
+	return buf,nil
+}
+
+
+func NewLinkStateNLRI() *LinkStateTLV {
+	return &LinkStateTLV{}
+}
+
+func (l *LinkStateTLV) MarshalJSON()([]byte,error){
+	buf := make([]byte,1)
+	return buf,nil
+}
+
+func (l *LinkStateTLV) Serialize() ([]byte, error) {
+	buf := make([]byte,1)
+	//fmt.Println("In Linkstate Serialize method")
+	return buf,nil
+}
+
+func (l *LinkStateTLV) DecodeFromBytes(data []byte) error {
+	//fmt.Println("LinkStateTLV DecodeFromBytes")
+
+    switch l.Type {
+        case LS_TLV_TYPE_NODE_FLAG_BITS:
+            if len(data) < 2 {  
+                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Node Flag bytes available")
+            }
+            flags := binary.BigEndian.Uint16(data[:2])
+            overload := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_OVERLOAD) != 0
+            attached := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ATTACHED) != 0
+            external := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_EXTERNAL) != 0
+            abr := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ABR) != 0
+            l.Value = &LinkStateNodeFlag{overload,attached,external,abr}
+        case LS_TLV_TYPE_IPV4_RID_REMOTE:
+            if len(data) < 4 {
+                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Remote IPv4 RID bytes available")
+            }
+            rid := binary.BigEndian.Uint32(data[:4])
+			ip := make(net.IP, 4)
+			binary.BigEndian.PutUint32(ip, rid)
+            fmt.Printf("Found IPV4 Remote Node TLV.  Type: %d, Value: %s\n", l.Type, ip.String())
+            l.Value = &LinkStateRIDv4Remote{rid}
+        case LS_TLV_TYPE_IPV4_RID_LOCAL:
+            if len(data) < 4 {
+                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Local IPv4 RID bytes available")
+            }
+            rid := binary.BigEndian.Uint32(data[:4])
+			ip := make(net.IP, 4)
+			binary.BigEndian.PutUint32(ip, rid)
+            fmt.Printf("Found IPV4 Local Node TLV.  Type: %d, Value: %s\n", l.Type, ip.String())
+            l.Value = &LinkStateRIDv4Local{rid}
+        case LS_TLV_TYPE_METRIC:
+            if len(data) < 2 {
+                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Metric bytes available")
+            }
+            var metric uint32
+            if len(data) == 2 {
+            	metric = uint32(binary.BigEndian.Uint16(data[:2]))
+            }
+            if len(data) == 3 {
+            	//Need to convert the 3 bytes to 4 in order to use BigEndian.Uint32()
+            	makedata := make([]byte, 4)
+            	//for some reason can't get copy() to work
+            	//copy(data, makedata[1:4])
+            	makedata[1] = data[0]
+				makedata[2] = data[1]
+				makedata[3] = data[2]
+            	metric = uint32(binary.BigEndian.Uint32(makedata))
+            }
+            fmt.Printf("Found Metric TLV.  Type: %d, Value: %d\n", l.Type, metric)
+            l.Value = &LinkStateMetric{metric}
+        case LS_TLV_TYPE_ISIS_AREA_ID:
+            if len(data) < 2 {
+                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State ISIS Area-ID bytes available")
+            }
+            l.Value = &LinkStateISISAreaID{data}
+            fmt.Printf("Found ISIS Area ID.  Type: %d, Value: %x\n", l.Type, data)
+        default:
+        	fmt.Printf("Unknown Link State TLV Type: %d\n", l.Type)
+        //    p.Value = &TunnelEncapSubTLVDefault{data}
+    }
+    return nil
+}
+
+
 type PathAttributeUnknown struct {
 	PathAttribute
 }
@@ -6725,6 +7020,8 @@ func GetPathAttribute(data []byte) (PathAttributeInterface, error) {
 		return &PathAttributeAigp{}, nil
 	case BGP_ATTR_TYPE_OPAQUE_VALUE:
 		return &PathAttributeOpaqueValue{}, nil
+	case BGP_ATTR_TYPE_LINKSTATE:
+		return &PathAttributeLinkState{}, nil
 	}
 	return &PathAttributeUnknown{}, nil
 }

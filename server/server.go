@@ -1672,8 +1672,7 @@ func (server *BgpServer) addNeighbor(c *config.Neighbor) error {
 	}
 	log.WithFields(log.Fields{
 		"Topic": "Peer",
-	}).Infof("Add a peer configuration for:%s", addr)
-
+	}).Infof("Added a peer configuration for:%s", addr)
 	peer := NewPeer(&server.bgpConfig.Global, c, server.globalRib, server.policy)
 	server.policy.Reset(nil, map[string]config.ApplyPolicy{peer.ID(): c.ApplyPolicy})
 	if peer.isRouteServerClient() {
