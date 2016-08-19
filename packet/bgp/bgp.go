@@ -6687,129 +6687,63 @@ func NewPathAttributeOpaqueValue(value []byte) *PathAttributeOpaqueValue {
 
 type LinkStateAttrType uint16
 
-type LinkStateTLV struct {
-    Type   LinkStateAttrType
-    Length uint16
-    Value LinkStateTLVValue
+type LinkStateNLRI struct {
+	AddrPrefixInterface
+	NlriLen uint16
+	NlriType uint16
+	Value []byte
 }
 
-func (l *LinkStateTLV) Serialize() ([]byte, error) {
-	buf := make([]byte,1)
-	//fmt.Println("In Linkstate Serialize method")
-	return buf,nil
+func (n *LinkStateNLRI) DecodeFromBytes(data []byte) error {
+	return nil
 }
 
-func (l *LinkStateTLV) DecodeFromBytes(data []byte) error {
-	//fmt.Println("LinkStateTLV DecodeFromBytes")
-
-    switch l.Type {
-        case LS_TLV_TYPE_NODE_FLAG_BITS:
-            if len(data) < 2 {  
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Node Flag bytes available")
-            }
-            flags := binary.BigEndian.Uint16(data[:2])
-            overload := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_OVERLOAD) != 0
-            attached := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ATTACHED) != 0
-            external := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_EXTERNAL) != 0
-            abr := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ABR) != 0
-            l.Value = &LinkStateNodeFlag{overload,attached,external,abr}
-        case LS_TLV_TYPE_IPV4_RID_REMOTE:
-            if len(data) < 4 {
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Remote IPv4 RID bytes available")
-            }
-            rid := binary.BigEndian.Uint32(data[:4])
-			ip := make(net.IP, 4)
-			binary.BigEndian.PutUint32(ip, rid)
-            fmt.Printf("Found IPV4 Remote Node TLV.  Type: %d, Value: %s\n", l.Type, ip.String())
-            l.Value = &LinkStateRIDv4Remote{rid}
-        case LS_TLV_TYPE_IPV4_RID_LOCAL:
-            if len(data) < 4 {
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Local IPv4 RID bytes available")
-            }
-            rid := binary.BigEndian.Uint32(data[:4])
-			ip := make(net.IP, 4)
-			binary.BigEndian.PutUint32(ip, rid)
-            fmt.Printf("Found IPV4 Local Node TLV.  Type: %d, Value: %s\n", l.Type, ip.String())
-            l.Value = &LinkStateRIDv4Local{rid}
-        case LS_TLV_TYPE_METRIC:
-            if len(data) < 2 {
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Metric bytes available")
-            }
-            var metric uint32
-            if len(data) == 2 {
-            	metric = uint32(binary.BigEndian.Uint16(data[:2]))
-            }
-            if len(data) == 3 {
-            	//Need to convert the 3 bytes to 4 in order to use BigEndian.Uint32()
-            	makedata := make([]byte, 4)
-            	//for some reason can't get copy() to work
-            	//copy(data, makedata[1:4])
-            	makedata[1] = data[0]
-				makedata[2] = data[1]
-				makedata[3] = data[2]
-            	metric = uint32(binary.BigEndian.Uint32(makedata))
-            }
-            fmt.Printf("Found Metric TLV.  Type: %d, Value: %d\n", l.Type, metric)
-            l.Value = &LinkStateMetric{metric}
-        case LS_TLV_TYPE_ISIS_AREA_ID:
-            if len(data) < 2 {
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State ISIS Area-ID bytes available")
-            }
-            l.Value = &LinkStateISISAreaID{data}
-            fmt.Printf("Found ISIS Area ID.  Type: %d, Value: %x\n", l.Type, data)
-        case LS_TLV_TYPE_TE_DEF_METRIC:
-            if len(data) < 3 {
-                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Metric bytes available")
-            }
-        	//Need to convert the 3 bytes to 4 in order to use BigEndian.Uint32()
-        	makedata := make([]byte, 4)
-        	//for some reason can't get copy() to work
-        	//copy(data, makedata[1:4])
-        	makedata[1] = data[0]
-			makedata[2] = data[1]
-			makedata[3] = data[2]
-        	metric := uint32(binary.BigEndian.Uint32(makedata))
-            fmt.Printf("Found TE Metric TLV.  Type: %d, Value: %d\n", l.Type, metric)
-            l.Value = &LinkStateTEMetric{metric}
-        default:
-        	l.Value = &LinkStateDefault{uint16(l.Type), data}
-        	fmt.Printf("Unknown Link State TLV Type: %d\n", l.Type)
-        //    p.Value = &TunnelEncapSubTLVDefault{data}
-    }
-    return nil
+func (n *LinkStateNLRI) serializePrefix(data []byte) error {
+	return nil
 }
 
-func (l *LinkStateTLV)AFI()uint16 {
+func (n *LinkStateNLRI) Prefix(data []byte) error {
+	return nil
+}
+
+func (n *LinkStateNLRI) Serialize() ([]byte, error) {
+	buf := make([]byte, 1)
+	return buf, nil
+}
+
+func (n *LinkStateNLRI) String() string {
+	//return n.Prefix.String()
+	return ""
+}
+
+func (n *LinkStateNLRI) AFI() uint16 {
 	return AFI_LINKSTATE
 }
 
-func (l *LinkStateTLV) SAFI()uint8 {
+func (n *LinkStateNLRI) SAFI() uint8 {
 	return SAFI_LINKSTATE
 }
 
-func (l *LinkStateTLV) Flat()map[string]string {
-	return map[string]string{}
-}
-
-func (l *LinkStateTLV) Len()int{
-	return int(l.Length+4)
-}
-
-func (l *LinkStateTLV) String()string {
-	return ("In Linkstate String Function")
-
-}
-
-func (l *LinkStateTLV) MarshalJSON() ([]byte, error) {
+func (n *LinkStateNLRI) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		//Type  LinkStateAttrType `json:"type"`
-		Value LinkStateTLVValue `json:"value"`
+		Type   uint16 `json:"type"`
+		Value  []byte   `json:"value"`
 	}{
-		//Type:  l.Type,
-		Value: l.Value,
+		Type:   n.NlriType,
+		Value: n.Value,
 	})
-	//buf := make([]byte, 1)
-	//return buf, nil
+}
+
+func (n *LinkStateNLRI) Length() int {
+	return int(n.NlriLen+4)
+}
+
+func (n *LinkStateNLRI) Len() int {
+	return int(n.NlriLen+4)
+}
+
+func NewLinkStateNLRI() *LinkStateNLRI {
+	return &LinkStateNLRI{}
 }
 
 type LinkStateTLVValue interface {
@@ -6849,10 +6783,12 @@ const(
 
 
 type LinkStateNodeFlag struct {
-    overload bool
-    attached bool
-    external bool
-    abr bool
+    Type   LinkStateAttrType
+    Length uint16
+    Overload bool
+    Attached bool
+    External bool
+    ABR bool
 }
 
 type LinkStateNodeFlagMap uint16
@@ -6866,6 +6802,7 @@ const (
 
 type LinkStateDefault struct {
 	Type uint16
+	Length uint16
     Value []byte
 }
 
@@ -6892,16 +6829,16 @@ func (l *LinkStateNodeFlag) Serialize() ([]byte, error) {
     binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_NODE_FLAG_BITS))
     binary.BigEndian.PutUint16(buf[2:], uint16(1))
     var flags LinkStateNodeFlagMap = 0
-    if l.overload {
+    if l.Overload {
      flags += LS_NODE_ATTR_FLAG_OVERLOAD
     }
-    if l.attached {
+    if l.Attached {
      flags += LS_NODE_ATTR_FLAG_ATTACHED
     }
-    if l.external {
+    if l.External {
      flags += LS_NODE_ATTR_FLAG_EXTERNAL
     }
-    if l.abr {
+    if l.ABR {
      flags += LS_NODE_ATTR_FLAG_ABR
     }
     binary.BigEndian.PutUint16(buf[4:], uint16(flags))
@@ -6910,19 +6847,19 @@ func (l *LinkStateNodeFlag) Serialize() ([]byte, error) {
 
 func (l *LinkStateNodeFlag) String() string {
 	var flags string
-    if l.overload {
+    if l.Overload {
      flags = "Overload: True, "
     }
-    if l.attached {
+    if l.Attached {
      flags = "Attached: True, "
     }
-    if l.external {
+    if l.External {
      flags = "External: True, "
     }
-    if l.abr {
+    if l.ABR {
      flags = "ABR: True, "
     }
-    if l.overload || l.attached || l.external || l.abr {
+    if l.Overload || l.Attached || l.External || l.ABR {
     	return fmt.Sprintf("{%s}", flags[:len(flags)-2])
     }
 	return fmt.Sprintf("{}")
@@ -6936,91 +6873,227 @@ func (l *LinkStateNodeFlag) MarshalJSON() ([]byte, error) {
 		External bool            `json:"external"`
 		ABR bool                 `json:"abr"`
 	}{
-		Type:   LS_TLV_TYPE_NODE_FLAG_BITS,
-		Overload: l.overload,
-		Attached: l.attached,
-		External: l.external,
-		ABR: l.abr,
+		Type:   l.Type,
+		Overload: l.Overload,
+		Attached: l.Attached,
+		External: l.External,
+		ABR: l.ABR,
 	})
 }
 
+type LinkStateOpaqueNodeAttr struct {
+    Type   LinkStateAttrType
+    Length uint16
+    OpaqueNodeAttr []byte
+}
+
+func (l *LinkStateOpaqueNodeAttr) Serialize() ([]byte, error) {
+    buf := make([]byte, l.Length+4)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+    binary.BigEndian.PutUint16(buf[2:], l.Length)   
+    copy(buf[4:], l.OpaqueNodeAttr)
+    return buf, nil
+}
+
+func (l *LinkStateOpaqueNodeAttr) String() string {
+    return fmt.Sprintf("{OpaqueNodeAttr: %x}", l.OpaqueNodeAttr)
+}
+
+func (l *LinkStateOpaqueNodeAttr) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct {
+        Type   LinkStateAttrType `json:"type"`
+        OpaqueNodeAttr []byte    `json:"opaqueNodeAttr"`
+    }{
+        Type:   l.Type,
+        OpaqueNodeAttr: l.OpaqueNodeAttr,
+    })
+}
+
+
+type LinkStateNodeName struct {
+    Type   LinkStateAttrType
+    Length uint16
+    NodeName []byte
+}
+
+func (l *LinkStateNodeName) Serialize() ([]byte, error) {
+    buf := make([]byte, l.Length+4)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+    binary.BigEndian.PutUint16(buf[2:], l.Length)   
+    copy(buf[4:], l.NodeName)
+    return buf, nil
+}
+
+func (l *LinkStateNodeName) String() string {
+    return fmt.Sprintf("{NodeName: %s}", l.NodeName)
+}
+
+func (l *LinkStateNodeName) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct {
+        Type   LinkStateAttrType `json:"type"`
+        NodeName string            `json:"nodeName"`
+    }{
+        Type:   l.Type,
+        NodeName: string(l.NodeName),
+    })
+}
+
+
+type LinkStateRIDv6Local struct {
+    Type   LinkStateAttrType
+    Length uint16
+    RID []byte
+}
+
+func (l *LinkStateRIDv6Local) Serialize() ([]byte, error) {
+    buf := make([]byte, l.Length+4)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+    binary.BigEndian.PutUint16(buf[2:], l.Length)   
+    copy(buf[4:], l.RID)
+    return buf, nil
+}
+
+func (l *LinkStateRIDv6Local) String() string {
+    return fmt.Sprintf("{RID: %s}", l.IP().String())
+}
+
+func (l *LinkStateRIDv6Local) IP() net.IP {
+    return net.IP(l.RID)
+}
+
+func (l *LinkStateRIDv6Local) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct {
+        Type   LinkStateAttrType `json:"type"`
+        RID net.IP            `json:"rid"`
+    }{
+        Type:   l.Type,
+        RID:    l.IP(),
+    })
+}
+
+type LinkStateRIDv6Remote struct {
+    Type   LinkStateAttrType
+    Length uint16
+    RID []byte
+}
+
+func (l *LinkStateRIDv6Remote) Serialize() ([]byte, error) {
+    buf := make([]byte, l.Length+4)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+    binary.BigEndian.PutUint16(buf[2:], l.Length)   
+    copy(buf[4:], l.RID)
+    return buf, nil
+}
+
+func (l *LinkStateRIDv6Remote) String() string {
+    return fmt.Sprintf("{RID: %s}", l.IP().String())
+}
+
+func (l *LinkStateRIDv6Remote) IP() net.IP {
+    return net.IP(l.RID)
+}
+
+func (l *LinkStateRIDv6Remote) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct {
+        Type   LinkStateAttrType `json:"type"`
+        RID net.IP            `json:"rid"`
+    }{
+        Type:   l.Type,
+        RID:    l.IP(),
+    })
+}
+
 type LinkStateRIDv4Remote struct {
-    rid uint32
+    Type   LinkStateAttrType
+    Length uint16
+    RID uint32
 }
 
 func (l *LinkStateRIDv4Remote) Serialize() ([]byte, error) {
     buf := make([]byte, 5)
     binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_IPV4_RID_REMOTE))
     binary.BigEndian.PutUint16(buf[2:], 4)
-    binary.BigEndian.PutUint32(buf[4:], l.rid)
+    binary.BigEndian.PutUint32(buf[4:], l.RID)
     return buf, nil
 }
 
 func (l *LinkStateRIDv4Remote) String() string {
+	return fmt.Sprintf("{RID: %s}", l.IP().String())
+}
+
+func (l *LinkStateRIDv4Remote) IP() net.IP {
 	ip := make(net.IP, 4)
-	binary.BigEndian.PutUint32(ip, l.rid)
-	return fmt.Sprintf("{rid: %s}", ip.String())
+	binary.BigEndian.PutUint32(ip, l.RID)
+	return ip
 }
 
 func (l *LinkStateRIDv4Remote) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Type   LinkStateAttrType `json:"type"`
-		RID uint32            `json:"rid"`
+		RID net.IP            `json:"rid"`
 	}{
-		Type:   LS_TLV_TYPE_IPV4_RID_REMOTE,
-		RID: l.rid,
+		Type:   l.Type,
+		RID: l.IP(),
 	})
 }
 
 
 type LinkStateRIDv4Local struct {
-    rid uint32
+    Type   LinkStateAttrType
+    Length uint16
+    RID uint32
 }
 
 func (l *LinkStateRIDv4Local) Serialize() ([]byte, error) {
     buf := make([]byte, 5)
-    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_IPV4_RID_LOCAL))
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
     binary.BigEndian.PutUint16(buf[2:], 4)
-    binary.BigEndian.PutUint32(buf[4:], l.rid)
+    binary.BigEndian.PutUint32(buf[4:], l.RID)
     return buf, nil
 }
 
 func (l *LinkStateRIDv4Local) String() string {
+	return fmt.Sprintf("{RID: %s}", l.IP().String())
+}
+
+func (l *LinkStateRIDv4Local) IP() net.IP {
 	ip := make(net.IP, 4)
-	binary.BigEndian.PutUint32(ip, l.rid)
-	return fmt.Sprintf("{rid: %s}", ip.String())
+	binary.BigEndian.PutUint32(ip, l.RID)
+	return ip
 }
 
 func (l *LinkStateRIDv4Local) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Type   LinkStateAttrType `json:"type"`
-		RID uint32            `json:"rid"`
+		RID net.IP            `json:"rid"`
 	}{
-		Type:   LS_TLV_TYPE_IPV4_RID_LOCAL,
-		RID: l.rid,
+		Type:   l.Type,
+		RID:    l.IP(),
 	})
 }
 
 type LinkStateMetric struct {
-    metric uint32
+    Type   LinkStateAttrType
+    Length uint16
+    Metric uint32
 }
 
 func (l *LinkStateMetric) Serialize() ([]byte, error) {
     buf := make([]byte, 5)
-    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_METRIC))
-    if l.metric < 65536 {
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+    if l.Metric < 65536 {
     	binary.BigEndian.PutUint16(buf[2:], 2)    	
-	    binary.BigEndian.PutUint16(buf[4:], uint16(l.metric))
+	    binary.BigEndian.PutUint16(buf[4:], uint16(l.Metric))
     	return buf, nil
     } else {
     	binary.BigEndian.PutUint16(buf[2:], 3) 	
-	    binary.BigEndian.PutUint32(buf[4:], l.metric << 8)
+	    binary.BigEndian.PutUint32(buf[4:], l.Metric << 8)
         return buf[:7], nil
     }
 }
 
 func (l *LinkStateMetric) String() string {
-	return fmt.Sprintf("{metric: %d}", l.metric)
+	return fmt.Sprintf("{metric: %d}", l.Metric)
 }
 
 func (l *LinkStateMetric) MarshalJSON() ([]byte, error) {
@@ -7028,25 +7101,27 @@ func (l *LinkStateMetric) MarshalJSON() ([]byte, error) {
 		Type   LinkStateAttrType `json:"type"`
 		Metric uint32            `json:"metric"`
 	}{
-		Type:   LS_TLV_TYPE_METRIC,
-		Metric: l.metric,
+		Type:   l.Type,
+		Metric: l.Metric,
 	})
 }
 
 type LinkStateTEMetric struct {
-    metric uint32
+    Type   LinkStateAttrType
+    Length uint16
+    Metric uint32
 }
 
 func (l *LinkStateTEMetric) Serialize() ([]byte, error) {
-    buf := make([]byte, 5)
-    binary.BigEndian.PutUint16(buf[0:], uint16(LS_TLV_TYPE_TE_DEF_METRIC))
+    buf := make([]byte, 8)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
 	binary.BigEndian.PutUint16(buf[2:], 3) 	
-    binary.BigEndian.PutUint32(buf[4:], l.metric << 8)
+    binary.BigEndian.PutUint32(buf[4:], l.Metric << 8)
     return buf[:7], nil
 }
 
 func (l *LinkStateTEMetric) String() string {
-	return fmt.Sprintf("{metric: %d}", l.metric)
+	return fmt.Sprintf("{metric: %d}", l.Metric)
 }
 
 func (l *LinkStateTEMetric) MarshalJSON() ([]byte, error) {
@@ -7054,22 +7129,27 @@ func (l *LinkStateTEMetric) MarshalJSON() ([]byte, error) {
 		Type   LinkStateAttrType `json:"type"`
 		Metric uint32            `json:"metric"`
 	}{
-		Type:   LS_TLV_TYPE_TE_DEF_METRIC,
-		Metric: l.metric,
+		Type:   l.Type,
+		Metric: l.Metric,
 	})
 }
 
 type LinkStateISISAreaID struct {
-    areaID []byte
+    Type   LinkStateAttrType
+    Length uint16
+    AreaID []byte
 }
 
 func (l *LinkStateISISAreaID) Serialize() ([]byte, error) {
-	buf := make([]byte, 1)
+    buf := make([]byte, l.Length+4)
+    binary.BigEndian.PutUint16(buf[0:], uint16(l.Type))
+	binary.BigEndian.PutUint16(buf[2:], l.Length) 	
+    copy(buf[4:], l.AreaID)
 	return buf, nil
 }
 
 func (l *LinkStateISISAreaID) String() string {
-	return fmt.Sprintf("{areaID: %x}", l.areaID)
+	return fmt.Sprintf("{areaID: %x}", l.AreaID)
 }
 
 func (l *LinkStateISISAreaID) MarshalJSON() ([]byte, error) {
@@ -7077,14 +7157,14 @@ func (l *LinkStateISISAreaID) MarshalJSON() ([]byte, error) {
 		Type   LinkStateAttrType `json:"type"`
 		AreaID []byte            `json:"areaID"`
 	}{
-		Type:   LS_TLV_TYPE_ISIS_AREA_ID,
-		AreaID: l.areaID,
+		Type:   l.Type,
+		AreaID: l.AreaID,
 	})
 }
 
 type PathAttributeLinkState struct {
     PathAttribute
-    Value []*LinkStateTLV
+    Value []LinkStateTLVValue
 }
 
 func (p *PathAttributeLinkState) DecodeFromBytes(data []byte) error {
@@ -7093,46 +7173,124 @@ func (p *PathAttributeLinkState) DecodeFromBytes(data []byte) error {
                 return err
         }
         curr := 0
+        values := make([]LinkStateTLVValue, 0)
+
         for {
-                if len(p.PathAttribute.Value) < curr+4 {
-                        break
-                }
-                t := binary.BigEndian.Uint16(p.PathAttribute.Value[curr : curr+2])
-                LinkStateType := LinkStateAttrType(t)
-                l := binary.BigEndian.Uint16(p.PathAttribute.Value[curr+2 : curr+4])
-                if len(p.PathAttribute.Value) < curr+4+int(l) {
-                        return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, fmt.Sprintf("Not all LinkStateTLV bytes available. %d < %d", len(p.PathAttribute.Value), curr+4+int(l)))
-                }
-                v := p.PathAttribute.Value[curr+4 : curr+4+int(l)]
-                tlv := &LinkStateTLV{
-                        Type: LinkStateType,
-                        Length:  l,
-                }
-                err = tlv.DecodeFromBytes(v)
-                if err != nil {
-                        return err
-                }
-                p.Value = append(p.Value, tlv)
-                curr += 4 + int(l)
+            if len(p.PathAttribute.Value) < curr+4 {
+                    break
+            }
+            t := binary.BigEndian.Uint16(p.PathAttribute.Value[curr : curr+2])
+            LinkStateType := LinkStateAttrType(t)
+            l := binary.BigEndian.Uint16(p.PathAttribute.Value[curr+2 : curr+4])
+            if len(p.PathAttribute.Value) < curr+4+int(l) {
+                    return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, fmt.Sprintf("Not all LinkStateTLV bytes available. %d < %d", len(p.PathAttribute.Value), curr+4+int(l)))
+            }
+            data := p.PathAttribute.Value[curr+4 : curr+4+int(l)]
+          	/*
+            tlv := &LinkStateTLV{
+                    Type: LinkStateType,
+                    Length:  l,
+            }
+            */
+
+        	switch LinkStateType {
+		        case LS_TLV_TYPE_NODE_FLAG_BITS:
+		            if len(data) < 2 {  
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Node Flag bytes available")
+		            }
+		            flags := binary.BigEndian.Uint16(data[:2])
+		            overload := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_OVERLOAD) != 0
+		            attached := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ATTACHED) != 0
+		            external := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_EXTERNAL) != 0
+		            abr := (LinkStateNodeFlagMap(flags) & LS_NODE_ATTR_FLAG_ABR) != 0
+		            //l.Value = &LinkStateNodeFlag{overload,attached,external,abr}
+		            values = append(values, &LinkStateNodeFlag{LinkStateType,l,overload,attached,external,abr})
+
+		        case LS_TLV_TYPE_IPV4_RID_REMOTE:
+		            if len(data) < 4 {
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Remote IPv4 RID bytes available")
+		            }
+		            rid := binary.BigEndian.Uint32(data[:4])
+					ip := make(net.IP, 4)
+					binary.BigEndian.PutUint32(ip, rid)
+		            fmt.Printf("Found IPV4 Remote Node TLV.  Type: %d, Value: %s\n", LinkStateType, ip.String())
+		           	values = append(values, &LinkStateRIDv4Remote{LinkStateType,l,rid})
+		            //l.Value = &LinkStateRIDv4Remote{rid}
+		        case LS_TLV_TYPE_IPV4_RID_LOCAL:
+		            if len(data) < 4 {
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Local IPv4 RID bytes available")
+		            }
+		            rid := binary.BigEndian.Uint32(data[:4])
+					ip := make(net.IP, 4)
+					binary.BigEndian.PutUint32(ip, rid)
+		            fmt.Printf("Found IPV4 Local Node TLV.  Type: %d, Value: %s\n", LinkStateType, ip.String())
+		            //l.Value = &LinkStateRIDv4Local{rid}
+		            values = append(values, &LinkStateRIDv4Local{LinkStateType,l,rid})
+		        case LS_TLV_TYPE_METRIC:
+		            if len(data) < 2 {
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Metric bytes available")
+		            }
+		            var metric uint32
+		            if len(data) == 2 {
+		            	metric = uint32(binary.BigEndian.Uint16(data[:2]))
+		            }
+		            if len(data) == 3 {
+		            	//Need to convert the 3 bytes to 4 in order to use BigEndian.Uint32()
+		            	makedata := make([]byte, 4)
+		            	//for some reason can't get copy() to work
+		            	//copy(data, makedata[1:4])
+		            	makedata[1] = data[0]
+						makedata[2] = data[1]
+						makedata[3] = data[2]
+		            	metric = uint32(binary.BigEndian.Uint32(makedata))
+		            }
+		            fmt.Printf("Found Metric TLV.  Type: %d, Value: %d\n", LinkStateType, metric)
+		            //l.Value = &LinkStateMetric{metric}
+		            values = append(values, &LinkStateMetric{LinkStateType,l,metric})
+		        case LS_TLV_TYPE_ISIS_AREA_ID:
+		            if len(data) < 2 {
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State ISIS Area-ID bytes available")
+		            }
+		            //l.Value = &LinkStateISISAreaID{data}
+		            fmt.Printf("Found ISIS Area ID.  Type: %d, Value: %x\n", LinkStateType, data)
+		            values = append(values, &LinkStateISISAreaID{LinkStateType,l,data})
+		        case LS_TLV_TYPE_TE_DEF_METRIC:
+		            if len(data) < 3 {
+		                return NewMessageError(BGP_ERROR_UPDATE_MESSAGE_ERROR, BGP_ERROR_SUB_MALFORMED_ATTRIBUTE_LIST, nil, "Not all Link State Metric bytes available")
+		            }
+		        	//Need to convert the 3 bytes to 4 in order to use BigEndian.Uint32()
+		        	makedata := make([]byte, 4)
+		        	//for some reason can't get copy() to work
+		        	//copy(data, makedata[1:4])
+		        	makedata[1] = data[0]
+					makedata[2] = data[1]
+					makedata[3] = data[2]
+		        	metric := uint32(binary.BigEndian.Uint32(makedata))
+		            fmt.Printf("Found TE Metric TLV.  Type: %d, Value: %d\n", LinkStateType, metric)
+		            //l.Value = &LinkStateTEMetric{metric}
+		            values = append(values, &LinkStateTEMetric{LinkStateType,l,metric})
+		        default:
+		        	//l.Value = &LinkStateDefault{uint16(l.Type), data}
+		        	fmt.Printf("Unknown Link State TLV Type: %d\n", LinkStateType)
+		            values = append(values, &LinkStateDefault{uint16(LinkStateType),l,data})
+		        //    p.Value = &TunnelEncapSubTLVDefault{data}
+		    }
+            curr += 4 + int(l)
         }
+        p.Value = values
         return nil
 }
 
-func (l *PathAttributeLinkState) MarshalJSON()([]byte,error){
+func (p *PathAttributeLinkState) MarshalJSON()([]byte,error){
+	fmt.Println("Attempting to Marshal JSON for PathAttributeLinkState")
 	return json.Marshal(struct {
 		Type  BGPAttrType 		`json:"type"`
-		Value []*LinkStateTLV   `json:"value"`
+		Value []LinkStateTLVValue   `json:"value"`
 	}{
-		Type:  l.GetType(),
-		Value: l.Value,
+		Type:  p.GetType(),
+		Value: p.Value,
 	})
 }
-
-
-func NewLinkStateNLRI() *LinkStateTLV {
-	return &LinkStateTLV{}
-}
-
 
 type PathAttributeUnknown struct {
 	PathAttribute
